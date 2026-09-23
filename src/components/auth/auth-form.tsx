@@ -37,7 +37,7 @@ export function AuthForm() {
 
   return (
     <div className="w-full max-w-md">
-      <div className="rounded-2xl border border-border bg-card/70 p-7 backdrop-blur-xl glow-border">
+      <div className="rounded-2xl border border-border bg-card/90 p-7 shadow-xl shadow-foreground/5 backdrop-blur-xl">
         <h1 className="text-2xl font-semibold tracking-tight">
           {mode === 'signup' ? 'Create your account' : 'Welcome back'}
         </h1>
@@ -129,13 +129,14 @@ export function AuthForm() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {mode === 'signup' ? 'Already have an account?' : "Don't have an account?"}{' '}
-          <button
+          <Button
+            variant="link"
             type="button"
             onClick={() => setMode(mode === 'signup' ? 'signin' : 'signup')}
-            className="font-medium text-foreground underline-offset-4 hover:underline"
+            className="h-auto p-0 font-medium text-primary"
           >
             {mode === 'signup' ? 'Sign in' : 'Sign up'}
-          </button>
+          </Button>
         </p>
       </div>
 
@@ -189,15 +190,16 @@ function SocialButton({
   disabled?: boolean
 }) {
   return (
-    <button
+    <Button
+      variant="outline"
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex h-11 items-center justify-center gap-2.5 rounded-lg border border-border bg-background/50 text-sm font-medium text-foreground transition-colors hover:bg-secondary disabled:opacity-60"
+      className="h-11 w-full gap-2.5 bg-background/70 text-foreground"
     >
       {icon}
       {label}
-    </button>
+    </Button>
   )
 }
 

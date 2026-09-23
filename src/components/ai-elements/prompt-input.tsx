@@ -1235,8 +1235,10 @@ export const PromptInputSubmit = ({
     Icon = <XIcon className="size-4" />;
   }
 
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick: NonNullable<
+    ComponentProps<typeof InputGroupButton>["onClick"]
+  > = useCallback(
+    (e) => {
       if (isGenerating && onStop) {
         e.preventDefault();
         onStop();
