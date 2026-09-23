@@ -26,9 +26,9 @@ import { AuthForm } from '@/components/auth/auth-form'
 
 function LoginPage() {
   return (
-    <main className="relative flex min-h-screen bg-background">
+    <main className="login-light relative flex min-h-screen overflow-hidden bg-background">
       {/* Left brand panel */}
-      <div className="relative hidden w-1/2 flex-col justify-between overflow-hidden border-r border-border p-10 lg:flex">
+      <div className="login-gradient relative hidden w-1/2 flex-col justify-between overflow-hidden border-r border-border p-10 lg:flex">
         <Link href="/" className="relative">
           <SuperintelligensLogo />
         </Link>
@@ -39,7 +39,7 @@ function LoginPage() {
             product before my coffee got cold.&rdquo;
           </blockquote>
           <div className="mt-6 flex items-center gap-3">
-            <span className="h-10 w-10 rounded-full bg-foreground" />
+            <span className="brand-gradient-bg flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-primary-foreground">AC</span>
             <div>
               <p className="text-sm font-medium">Ava Chen</p>
               <p className="text-sm text-muted-foreground">
@@ -57,7 +57,7 @@ function LoginPage() {
       </div>
 
       {/* Right form panel */}
-      <div className="relative flex w-full flex-col items-center justify-center px-6 lg:w-1/2">
+      <div className="relative flex w-full flex-col items-center justify-center bg-background/90 px-6 backdrop-blur-sm lg:w-1/2">
         <Link
           href="/"
           className="absolute left-6 top-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"

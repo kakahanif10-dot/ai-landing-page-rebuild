@@ -16,10 +16,14 @@ import {
   FileType2,
   ChevronRight,
   ChevronDown,
+  Plug,
+  LayoutGrid,
+  Zap,
 } from 'lucide-react'
 import { SuperintelligensMark } from '@/components/superintelligens-logo'
 import { cn } from '@/lib/utils'
 import type { DesignSpec, Template } from '@/lib/design'
+import { Button } from '@/components/ui/button'
 
 export type Session = {
   id: string
@@ -146,18 +150,30 @@ export function WorkspaceSidebar({
         </button>
       </div>
 
-      {/* New project */}
-      <div className="px-3">
-        <button
+      {/* Primary navigation */}
+      <div className="space-y-1 px-3">
+        <Button
+          variant="ghost"
           onClick={onNew}
           className={cn(
-            'brand-gradient-bg flex h-10 w-full items-center gap-2 rounded-lg text-sm font-medium text-primary-foreground transition-all hover:brightness-110',
+            'h-9 w-full justify-start gap-2 text-muted-foreground',
             collapsed ? 'justify-center px-0' : 'px-3',
           )}
         >
           <Plus className="h-4 w-4 shrink-0" />
-          {!collapsed && 'New Project'}
-        </button>
+          {!collapsed && 'New'}
+        </Button>
+        {[{ icon: Search, label: 'Search' }, { icon: Plug, label: 'Connectors' }, { icon: MessageSquare, label: 'Chats' }, { icon: LayoutGrid, label: 'Projects' }].map((item) => (
+          <Button
+            key={item.label}
+            variant="ghost"
+            className={cn('h-9 w-full justify-start gap-2 text-muted-foreground', collapsed && 'justify-center px-0')}
+            onClick={item.label === 'Search' || item.label === 'Chats' ? () => onTabChange('chats') : undefined}
+          >
+            <item.icon className="h-4 w-4 shrink-0" />
+            {!collapsed && item.label}
+          </Button>
+        ))}
       </div>
 
       {!collapsed && (
@@ -203,8 +219,8 @@ export function WorkspaceSidebar({
         {tab === 'chats' ? (
           <>
             {!collapsed && (
-              <p className="px-1 pb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Chats
+              <p className="px-1 pb-2 text-[11px] font-medium text-muted-foreground">
+                Recents
               </p>
             )}
             {filtered.length === 0 ? (
@@ -264,6 +280,13 @@ export function WorkspaceSidebar({
 
       {/* Footer actions */}
       <div className="border-t border-sidebar-border p-3">
+        <Button
+          className={cn('mb-2 h-10 w-full gap-2', collapsed ? 'px-0' : 'justify-start')}
+          onClick={() => undefined}
+        >
+          <Zap className="h-4 w-4" />
+          {!collapsed && <span className="flex-1 text-left">Upgrade to Pro</span>}
+        </Button>
         <ul className="flex flex-col gap-1">
           {[
             { icon: LifeBuoy, label: 'Support' },

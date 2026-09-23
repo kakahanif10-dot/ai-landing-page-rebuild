@@ -1,14 +1,36 @@
 
 import { useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Monitor, Smartphone, ImagePlus, X, Upload } from 'lucide-react'
+import {
+  Monitor,
+  Smartphone,
+  ImagePlus,
+  X,
+  Upload,
+  Minus,
+  Plus,
+  Maximize2,
+  Minimize2,
+  RotateCcw,
+} from 'lucide-react'
 import { PhoneSimulator } from '@/components/workspace/phone-simulator'
 import { AppPreview } from '@/components/workspace/app-preview'
+import { Button } from '@/components/ui/button'
 import { GALLERY_IMAGES } from '@/lib/consultant'
 import type { DesignSpec } from '@/lib/design'
 import { cn } from '@/lib/utils'
 
 type Device = 'mobile' | 'desktop'
+const ZOOM_LEVELS = [50, 67, 75, 90, 100] as const
+type Zoom = (typeof ZOOM_LEVELS)[number]
+
+const zoomClass: Record<Zoom, string> = {
+  50: 'scale-50',
+  67: 'scale-[.67]',
+  75: 'scale-75',
+  90: 'scale-90',
+  100: 'scale-100',
+}
 
 /**
  * Dual-mode preview terminal. A stateless responsive switcher flips the
@@ -28,6 +50,9 @@ export function ResponsivePreview({
   const [device, setDevice] = useState<Device>('mobile')
   const [galleryOpen, setGalleryOpen] = useState(false)
   const [attachment, setAttachment] = useState<string | null>(null)
+  const [zoom, setZoom] = useState<Zoom>(75)
+  const [expanded, setExpanded] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
   const fileRef = useRef<HTMLInputElement>(null)
 
   const pickFromDevice = (files: FileList | null) => {
@@ -42,7 +67,7 @@ export function ResponsivePreview({
   }
 
   return (
-    <div className="flex h-full flex-col bg-[oklch(0.12_0_0)]">
+    <div className={cn('flex h-full flex-col bg-[oklch(0.12_0_0)]', expanded && 'fixed inset-0 z-50')}>
       {/* Toolbar */}
       <div className="flex h-12 shrink-0 items-center justify-between border-b border-white/10 px-4">
         <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 p-0.5">
@@ -60,35 +85,83 @@ export function ResponsivePreview({
           />
         </div>
 
-        <button
-          onClick={() => setGalleryOpen(true)}
-          disabled={!spec.hasContent}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <ImagePlus className="h-3.5 w-3.5" />
-          Add image from gallery
-        </button>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setRefreshKey((key) => key + 1)}
+            className="text-white/60 hover:bg-white/10 hover:text-white"
+            aria-label="Refresh preview"
+            title="Refresh preview"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+          </Button>
+          <div className="flex h-8 items-center rounded-lg border border-white/10 bg-white/5">
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => setZoom((value) => ZOOM_LEVELS[Math.max(0, ZOOM_LEVELS.indexOf(value) - 1)])}
+              disabled={zoom === ZOOM_LEVELS[0]}
+              className="text-white/60 hover:bg-white/10 hover:text-white"
+              aria-label="Zoom out"
+              title="Zoom out"
+            ><Minus className="h-3.5 w-3.5" /></Button>
+            <span className="w-11 text-center text-[11px] tabular-nums text-white/70">{zoom}%</span>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => setZoom((value) => ZOOM_LEVELS[Math.min(ZOOM_LEVELS.length - 1, ZOOM_LEVELS.indexOf(value) + 1)])}
+              disabled={zoom === ZOOM_LEVELS[ZOOM_LEVELS.length - 1]}
+              className="text-white/60 hover:bg-white/10 hover:text-white"
+              aria-label="Zoom in"
+              title="Zoom in"
+            ><Plus className="h-3.5 w-3.5" /></Button>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setGalleryOpen(true)}
+            disabled={!spec.hasContent}
+            className="text-white/60 hover:bg-white/10 hover:text-white"
+            aria-label="Add image from gallery"
+            title="Add image from gallery"
+          >
+            <ImagePlus className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setExpanded((value) => !value)}
+            className="text-white/60 hover:bg-white/10 hover:text-white"
+            aria-label={expanded ? 'Pop preview in' : 'Pop preview out'}
+            title={expanded ? 'Pop preview in' : 'Pop preview out'}
+          >
+            {expanded ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+          </Button>
+        </div>
       </div>
 
       {/* Viewport */}
       <div className="relative min-h-0 flex-1 overflow-hidden">
-        {device === 'mobile' ? (
-          <PhoneSimulator
-            spec={spec}
-            building={building}
-            attachment={attachment}
-            onClearAttachment={() => setAttachment(null)}
-            onEdit={onEdit}
-          />
-        ) : (
-          <DesktopFrame
-            spec={spec}
-            building={building}
-            attachment={attachment}
-            onClearAttachment={() => setAttachment(null)}
-            onEdit={onEdit}
-          />
-        )}
+        <div className={cn('h-full w-full origin-center transition-transform duration-200', zoomClass[zoom])} key={refreshKey}>
+          {device === 'mobile' ? (
+            <PhoneSimulator
+              spec={spec}
+              building={building}
+              attachment={attachment}
+              onClearAttachment={() => setAttachment(null)}
+              onEdit={onEdit}
+            />
+          ) : (
+            <DesktopFrame
+              spec={spec}
+              building={building}
+              attachment={attachment}
+              onClearAttachment={() => setAttachment(null)}
+              onEdit={onEdit}
+            />
+          )}
+        </div>
 
         {/* Gallery picker modal */}
         <AnimatePresence>

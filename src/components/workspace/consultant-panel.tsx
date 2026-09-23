@@ -2,14 +2,30 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
-  Sparkles,
   Wand2,
   Download,
-  ArrowUp,
   AlertCircle,
   Cpu,
   Plus,
+  Paperclip,
+  Mic,
 } from 'lucide-react'
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from '@/components/ai-elements/conversation'
+import { Message, MessageContent, MessageResponse } from '@/components/ai-elements/message'
+import {
+  PromptInput,
+  PromptInputButton,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from '@/components/ai-elements/prompt-input'
+import { Shimmer } from '@/components/ai-elements/shimmer'
+import { Button } from '@/components/ui/button'
 import { SuperintelligensMark } from '@/components/superintelligens-logo'
 import { TEMPLATE_LABELS, type DesignSpec } from '@/lib/design'
 import {
@@ -62,34 +78,37 @@ export function ConsultantPanel({
     <div className="flex h-full flex-col bg-background">
       {/* Header */}
       <div className="flex h-11 shrink-0 items-center gap-2 border-b border-border px-4 text-sm font-medium">
-        <Sparkles className="h-4 w-4" />
-        AI Consultant
-        <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-2 py-0.5 text-[10px] font-normal text-muted-foreground">
+        <SuperintelligensMark className="h-5 w-5" />
+        Build with AI
+        <span className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-normal text-muted-foreground">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
           Autonomous agent
         </span>
       </div>
 
       {/* Conversation */}
-      <div className="thin-scroll flex-1 space-y-5 overflow-y-auto px-4 py-5">
-        {empty && <EmptyState onPick={onPromptChange} />}
+      <Conversation className="thin-scroll">
+        <ConversationContent className="gap-5 px-4 py-5">
+          {empty && <EmptyState onPick={onPromptChange} />}
 
-        {messages.map((m) =>
-          m.role === 'user' ? (
-            <UserBubble key={m.id} text={m.text} />
-          ) : (
-            <AssistantBubble
-              key={m.id}
-              message={m}
-              onRecommendation={onRecommendation}
-              disabled={busy}
-            />
-          ),
-        )}
+          {messages.map((m) =>
+            m.role === 'user' ? (
+              <UserBubble key={m.id} text={m.text} />
+            ) : (
+              <AssistantBubble
+                key={m.id}
+                message={m}
+                onRecommendation={onRecommendation}
+                disabled={busy}
+              />
+            ),
+          )}
 
-        <AnimatePresence>{generating && <CompileLog />}</AnimatePresence>
-        <div ref={endRef} />
-      </div>
+          <AnimatePresence>{generating && <CompileLog />}</AnimatePresence>
+          <div ref={endRef} />
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
 
       {/* Detected context strip */}
       {spec.hasContent && (
@@ -125,56 +144,43 @@ export function ConsultantPanel({
 
       {/* Composer */}
       <div className="shrink-0 border-t border-border p-3">
-        <div className="glow-border rounded-xl border border-border bg-card/70 p-2 focus-within:border-foreground/40">
-          <textarea
+        <PromptInput
+          onSubmit={() => onGenerate()}
+          className="glow-border [&_[data-slot=input-group]]:rounded-xl [&_[data-slot=input-group]]:bg-card/70"
+        >
+          <PromptInputTextarea
             value={prompt}
             onChange={(e) => onPromptChange(e.target.value)}
-            onKeyDown={(e) => {
-              if (
-                e.key === 'Enter' &&
-                !e.shiftKey &&
-                !e.nativeEvent.isComposing &&
-                e.keyCode !== 229
-              ) {
-                e.preventDefault()
-                onGenerate()
-              }
-            }}
-            rows={2}
-            placeholder="Describe any app in any language — the agent detects the industry and brands it for you."
-            className="w-full resize-none bg-transparent px-2 py-1.5 text-sm leading-relaxed placeholder:text-muted-foreground focus:outline-none"
+            placeholder="Ask SUPERINTELLIGENS to build or change anything..."
+            className="min-h-20 px-3"
           />
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[10px] text-muted-foreground">
-              Enter to generate · Shift+Enter for newline
-            </span>
-            <button
-              onClick={onGenerate}
+          <PromptInputFooter>
+            <PromptInputTools>
+              <PromptInputButton tooltip="Attach files" aria-label="Attach files">
+                <Paperclip className="size-4" />
+              </PromptInputButton>
+              <PromptInputButton tooltip="Voice input" aria-label="Voice input">
+                <Mic className="size-4" />
+              </PromptInputButton>
+              <span className="hidden text-[10px] text-muted-foreground sm:inline">Plan & build</span>
+            </PromptInputTools>
+            <PromptInputSubmit
+              status={busy ? 'submitted' : 'ready'}
               disabled={!prompt.trim() || busy}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background transition-opacity hover:opacity-90 disabled:opacity-40"
-              aria-label="Generate app"
-            >
-              {busy ? (
-                <Wand2 className="h-4 w-4 animate-pulse" />
-              ) : (
-                <ArrowUp className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-        </div>
+              aria-label="Send prompt"
+            />
+          </PromptInputFooter>
+        </PromptInput>
 
-        <button
+        <Button
+          variant="outline"
           onClick={onExport}
           disabled={!spec.hasContent || generating}
-          className="group relative mt-2 inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/60 bg-white px-4 py-2.5 text-sm font-semibold tracking-wide text-black shadow-[0_0_18px_-2px_rgba(255,255,255,0.7)] transition-all hover:shadow-[0_0_30px_0px_rgba(255,255,255,0.95)] disabled:cursor-not-allowed disabled:border-border disabled:bg-transparent disabled:text-foreground disabled:shadow-none disabled:opacity-40"
+          className="mt-2 h-9 w-full gap-2"
         >
-          <span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 animate-pulse rounded-xl bg-white/30 group-disabled:hidden"
-          />
-          <Download className="relative h-4 w-4" />
-          <span className="relative">DOWNLOAD APP</span>
-        </button>
+          <Download className="h-4 w-4" />
+          Download app
+        </Button>
         <p className="mt-1.5 px-1 text-[10px] leading-relaxed text-muted-foreground">
           Exports a real Expo / React Native project you can build into an
           installable <span className="font-mono">.apk</span> with{' '}
@@ -292,16 +298,9 @@ function RichText({ text }: { text: string }) {
 
 function UserBubble({ text }: { text: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex flex-row-reverse gap-3"
-    >
-      <span className="mt-0.5 h-7 w-7 shrink-0 rounded-full bg-secondary" />
-      <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-secondary px-3.5 py-2.5 text-sm leading-relaxed text-secondary-foreground">
-        {text}
-      </div>
-    </motion.div>
+    <Message from="user" className="animate-fade-in">
+      <MessageContent className="bg-primary text-primary-foreground">{text}</MessageContent>
+    </Message>
   )
 }
 
@@ -315,44 +314,39 @@ function AssistantBubble({
   disabled: boolean
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="flex gap-3"
-    >
-      <SuperintelligensMark className="mt-0.5 h-7 w-7 shrink-0" />
-      <div className="max-w-[85%] space-y-2">
-        <div className="rounded-2xl rounded-tl-sm border border-border bg-card/70 px-3.5 py-2.5 text-sm leading-relaxed text-foreground">
+    <Message from="assistant" className="animate-fade-in">
+      <div className="flex gap-3">
+        <SuperintelligensMark className="mt-0.5 h-7 w-7 shrink-0" />
+        <div className="min-w-0 max-w-[88%] space-y-2">
+          <MessageContent className="w-full">
           {message.text ? (
-            <RichText text={message.text} />
+            <MessageResponse>{message.text}</MessageResponse>
           ) : (
-            <span className="inline-flex gap-1 py-1 align-middle" aria-label="Assistant is typing">
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.2s]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.1s]" />
-              <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" />
-            </span>
+            <Shimmer className="text-sm">Thinking...</Shimmer>
           )}
-        </div>
+          </MessageContent>
         {message.recommendations && message.recommendations.length > 0 && (
           <div className="flex flex-col gap-1.5">
             {message.recommendations.map((rec, i) => (
-              <button
+              <Button
+                variant="outline"
                 key={rec.label}
                 onClick={() => onRecommendation(rec)}
                 disabled={disabled}
-                className="group flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2 text-left text-[12px] font-medium transition-colors hover:border-foreground/30 hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-40"
+                className="h-auto w-full justify-start gap-2 px-3 py-2 text-left text-[12px]"
               >
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-secondary text-[10px] font-bold text-muted-foreground group-hover:bg-foreground group-hover:text-background">
                   {i + 1}
                 </span>
                 <span className="flex-1">{rec.label}</span>
                 <Plus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              </button>
+              </Button>
             ))}
           </div>
         )}
+        </div>
       </div>
-    </motion.div>
+    </Message>
   )
 }
 
