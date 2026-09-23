@@ -13,7 +13,7 @@ export function geminiApiKey(): string {
     env['GEMINI_API_KEY'] ||
     env['GOOGLE_API_KEY'] ||
     env['VITE_GEMINI_API_KEY'] ||
-    import.meta.env.VITE_GEMINI_API_KEY ||
+    import.meta.env['VITE_GEMINI_API_KEY'] ||
     ''
   )
 }
