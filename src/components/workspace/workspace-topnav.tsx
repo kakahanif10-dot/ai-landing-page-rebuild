@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion'
 import { ChevronDown, Rocket, Share2, Loader2, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { SuperintelligensMark } from '@/components/superintelligens-logo'
 
 export function WorkspaceTopnav({
   projectName,
@@ -15,10 +16,11 @@ export function WorkspaceTopnav({
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-background/60 px-4 backdrop-blur">
       <div className="flex items-center gap-2 text-sm">
-        <button className="flex items-center gap-1.5 rounded-md px-2 py-1 text-foreground transition-colors hover:bg-secondary">
+        <SuperintelligensMark className="h-6 w-6" />
+        <Button variant="ghost" className="h-8 gap-1.5 px-2">
           <span className="font-medium">{projectName}</span>
           <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
-        </button>
+        </Button>
         <span className="rounded-full border border-border bg-card/60 px-2 py-0.5 text-xs text-muted-foreground">
           Draft
         </span>

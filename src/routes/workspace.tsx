@@ -28,7 +28,7 @@ import {
   WorkspaceSidebar,
   type SidebarTab,
 } from '@/components/workspace/workspace-sidebar'
-import { SuperintelligensLogo } from '@/components/superintelligens-logo'
+import { WorkspaceTopnav } from '@/components/workspace/workspace-topnav'
 import { DEFAULT_SPEC, type DesignSpec } from '@/lib/design'
 import {
   COMPILE_DURATION_MS,
@@ -96,6 +96,7 @@ function WorkspacePage() {
   const [tab, setTab] = useState<SidebarTab>('chats')
   const [sessions, setSessions] = useState<Session[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [deployState, setDeployState] = useState<'idle' | 'deploying' | 'deployed'>('idle')
 
   // Pane 3 — theme modifier drawer + its 3.6s hydration loop.
   const [drawerOpen, setDrawerOpen] = useState(true)
@@ -318,6 +319,12 @@ function WorkspacePage() {
     if (spec.hasContent) downloadSourceZip(spec)
   }
 
+  const handleDeploy = () => {
+    if (deployState === 'deploying') return
+    setDeployState('deploying')
+    window.setTimeout(() => setDeployState('deployed'), 1100)
+  }
+
   const selectSession = (id: string) => {
     const s = sessions.find((x) => x.id === id)
     if (!s) return
@@ -384,19 +391,11 @@ function WorkspacePage() {
       />
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        {/* Top bar */}
-        <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-5">
-          <SuperintelligensLogo markClassName="h-7 w-7" />
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="hidden items-center gap-1.5 sm:flex">
-              <span className="h-1.5 w-1.5 rounded-full bg-foreground" />
-              Universal Context-Aware Engine
-            </span>
-            <span className="rounded-full border border-border bg-card/60 px-2.5 py-1 font-mono">
-              gemini-3.5-flash · Google AI
-            </span>
-          </div>
-        </header>
+        <WorkspaceTopnav
+          projectName={spec.hasContent ? spec.appName : 'Untitled project'}
+          deployState={deployState}
+          onDeploy={handleDeploy}
+        />
 
         {/* Three-pane console: consultant · preview · modifier drawer */}
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(340px,420px)_1fr_auto]">
