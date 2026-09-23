@@ -1,0 +1,17 @@
+{
+  "source": "https://github.com/kakahanif10-dot/smiley-thingy-project.git",
+  "branch": "main",
+  "capabilities": [
+    {"capability":"application code and routes","source":"GitHub repository","outcome":"migrate","status":"in_progress","next_action":"copy and verify"},
+    {"capability":"database schema and records","source":"none detected","outcome":"not_applicable","status":"verified","next_action":"none"},
+    {"capability":"authentication identities","source":"UI-only login screen","outcome":"preserve interface","status":"in_progress","next_action":"verify login screen"},
+    {"capability":"authorization","source":"none detected","outcome":"not_applicable","status":"verified","next_action":"none"},
+    {"capability":"uploaded file bytes","source":"bundled public and source assets","outcome":"migrate","status":"in_progress","next_action":"copy assets"},
+    {"capability":"AI generation and chat","source":"Google Gemini API with local chat fallback","outcome":"preserve","status":"in_progress","next_action":"copy endpoints and verify fallback behavior"},
+    {"capability":"public endpoints","source":"/api/chat and /api/generate","outcome":"preserve","status":"in_progress","next_action":"copy and verify"},
+    {"capability":"payments, email, webhooks, schedules","source":"none detected","outcome":"not_applicable","status":"verified","next_action":"none"},
+    {"capability":"secrets","source":"VITE_GEMINI_API_KEY referenced","outcome":"preserve optional integration","status":"pending","next_action":"AI generation requires the existing Gemini key for live responses"},
+    {"capability":"cutover","source":"new Lovable workspace","outcome":"not_applicable","status":"verified","next_action":"none"},
+    {"capability":"visual and interaction verification","source":"local preview","outcome":"verify","status":"pending","next_action":"test all three routes"}
+  ]
+}
